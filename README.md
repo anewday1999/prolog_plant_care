@@ -3,7 +3,7 @@
 - PyVersion > 3.7.x.
 - Install library:
 ```sh
-pip3 install PyQt5 numpy pandas
+pip3 install PyQt5 pandas
 ```
 ## II/ Run:
 - Terminal:
