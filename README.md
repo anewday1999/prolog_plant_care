@@ -6,7 +6,7 @@
 pip3 install PyQt5 numpy pandas
 ```
 ## II/ Run:
--Terminal:
+- Terminal:
 ```sh
 python3 main.py
 ```
