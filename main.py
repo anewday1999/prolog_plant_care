@@ -491,7 +491,8 @@ class Ui_plantcare(object):
             return -3
         
         return 0
-
+    
+    #Display list plants
     def displayList(self):
         self.listPlants.clear()
         for i in range(len(self.df_plants)):
@@ -499,13 +500,15 @@ class Ui_plantcare(object):
 
             word = '<span style=\" color: #0d1f45;\">%s</span>' % text
             self.listPlants.append(word)
-
+    
+    #PD tp csv
     def save_plants(self):
         self.df_plants.to_csv('./plants.csv', index=False)
 
     def save_weather(self):
         self.df_weather.to_csv('./weather.csv', index=False)
-
+    
+    #Time started
     def displayWeather(self):
 
         local_time = strftime("%Y-%m-%d %H:%M:%S", localtime())
@@ -518,12 +521,14 @@ class Ui_plantcare(object):
         self.weatherOutput.append(word)
 
                 
-
+    #Process export weather's data
     def run(self):
         while self.running == True:
+            #Get weather info
             r = requests.get('http://api.openweathermap.org/data/2.5/weather?q=Moscow&appid=f3aee7c3b6bfb084ec625bc705b28192')
             jsonres = r.json()
             main = jsonres['main']
+            #Get local time
             local_time = strftime("%Y-%m-%d %H:%M:%S", localtime())
             ah = main['humidity']
             tempe = round(main['temp'] - 273.15, 1)
@@ -532,10 +537,12 @@ class Ui_plantcare(object):
             else:
                 light = random.randint(500, 1000)
             new_row = {'Date': [local_time], 'Airhumidity': [ah], 'Temperature': [tempe], 'Lightintensity': [light]}
+            
             self.df_weather = pd.DataFrame(new_row)
             print(self.df_weather.tail(5))
             self.save_weather()
-
+            
+            #Timestep
             timeStep = self.nameInput_2.text()
             try:
                 timeStep = float(timeStep)
@@ -547,6 +554,7 @@ class Ui_plantcare(object):
             time.sleep(timeStep)
 
     def pressSubmit(self):
+        #Check input
         print(self.nameInput.text(), self.WSInput.text())
         check = self.checkInput(self.nameInput.text(), self.WSInput.text())
         if check == -1:
@@ -562,7 +570,7 @@ class Ui_plantcare(object):
             self.Status.setText('Name is empty!!!')
             self.Status.setStyleSheet("color: #ff0000")
         elif check == 0:
-
+            #OKE
             new_row = {'Name':self.nameInput.text(), 'Ws':self.WSInput.text()}
             self.df_plants = self.df_plants.append(new_row, ignore_index=True)
             self.displayList()
@@ -572,6 +580,7 @@ class Ui_plantcare(object):
         self.save_plants()
         
     def pressDelete(self):
+        #Input oke then delete
         if self.nameInput.text() in self.df_plants['Name'].values:
 
             self.Status.setText(self.nameInput.text() + ' was deleted.')
@@ -596,6 +605,7 @@ class Ui_plantcare(object):
             self.displayWeather()
             self.startButton.setText("RUNNING")
             self.startButton.setStyleSheet("color: #ff0000")
+            #New thread for run function
             t1 = Thread(target=self.run, args=(), daemon=True)
             t1.start()
 
