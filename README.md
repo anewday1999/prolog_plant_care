@@ -10,3 +10,6 @@ pip3 install PyQt5 numpy pandas
 ```sh
 python3 main.py
 ```
+## II/ Details:
+- Data structure:
+![image](files/Users/jzhang/Desktop/Isolated.png)
