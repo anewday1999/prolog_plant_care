@@ -12,4 +12,4 @@ python3 main.py
 ```
 ## II/ Details:
 - Data structure:
-![image](files/Users/jzhang/Desktop/Isolated.png)
+![image](prolog_plant_care/209498487_427430094891613_8104585248995227571_n.png)
