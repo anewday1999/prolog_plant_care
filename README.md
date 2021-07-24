@@ -11,4 +11,4 @@ pip3 install PyQt5 pandas numpy pyswip
 python3 main.py
 ```
 ## III/ UI:
-![image](https://github.com/anewday1999/prolog_plant_care/blob/main/209498487_427430094891613_8104585248995227571_n.png)
+![image](https://github.com/anewday1999/prolog_plant_care/blob/main/Screenshot%202021-07-24%20at%2014.16.29.png)
