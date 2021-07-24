@@ -417,7 +417,7 @@ class Ui_plantcare(object):
         self.deleteBut.setFont(font)
         self.deleteBut.setObjectName("deleteBut")
         self.timeStepLabel = QtWidgets.QLabel(self.centralwidget)
-        self.timeStepLabel.setGeometry(QtCore.QRect(60, 430, 61, 21))
+        self.timeStepLabel.setGeometry(QtCore.QRect(50, 430, 81, 21))
         self.timeStepLabel.setObjectName("timeStepLabel")
         self.nameInput_2 = QtWidgets.QLineEdit(self.centralwidget)
         self.nameInput_2.setGeometry(QtCore.QRect(140, 430, 81, 21))
@@ -584,9 +584,9 @@ class Ui_plantcare(object):
 
         self.displayList()
 
-        self.listNeedWater.itemDoubleClicked.connect(self.clickItem)
-        self.listNeedLight.itemDoubleClicked.connect(self.clickItem)
-        self.listNeedInside.itemDoubleClicked.connect(self.clickItem)
+        self.listNeedWater.itemDoubleClicked.connect(self.clickItemWater)
+        self.listNeedLight.itemDoubleClicked.connect(self.clickItemLight)
+        self.listNeedInside.itemDoubleClicked.connect(self.clickItemInside)
         self.submitBut.clicked.connect(self.pressSubmit)
         self.deleteBut.clicked.connect(self.pressDelete)
         self.startButton.clicked.connect(self.pressStart)
@@ -644,14 +644,9 @@ class Ui_plantcare(object):
         word = '<span style=\" color: #0d1f45;\">%s</span>' % text
         self.weatherOutput.append(word)
 
-    def clickItem(self, item):
+    def clickItemWater(self, item):
 
         self.get_current_plants()
-        
-        print('before click:')
-        print(self.id_needwater)
-        print(self.id_needlight)
-        print(self.id_needtobeinside)
         #lay ten cua item vua click
         clicked = item.text()
 
@@ -666,44 +661,90 @@ class Ui_plantcare(object):
 
             self.id_needwater.remove(id_clicked)
             list(self.prolog.query("watering({:d}).".format(id_clicked)))
+        
+        self.display_plants_need_somethings(change='water')
+
+    def clickItemLight(self, item):
+
+        self.get_current_plants()
+        #lay ten cua item vua click
+        clicked = item.text()
+
+        #lay id cua item do
+        for plant in self.df_plants.iterrows():
+            if clicked == plant[1][1]:
+                id_clicked = plant[1][0]
+        
 
         if id_clicked in self.id_needlight:
 
             self.id_needlight.remove(id_clicked)
             list(self.prolog.query("puttingOutside({:d}).".format(id_clicked)))
+        
+        self.display_plants_need_somethings(change='light')
+
+    def clickItemInside(self, item):
+
+        self.get_current_plants()
+        
+        #lay ten cua item vua click
+        clicked = item.text()
+
+        #lay id cua item do
+        for plant in self.df_plants.iterrows():
+            if clicked == plant[1][1]:
+                id_clicked = plant[1][0]
+        
 
         if id_clicked in self.id_needtobeinside:
 
             self.id_needtobeinside.remove(id_clicked)
             list(self.prolog.query("puttingInside({:d}).".format(id_clicked)))
 
-        print('after click')
-        print(self.id_needwater)
-        print(self.id_needlight)
-        print(self.id_needtobeinside)
         
-        self.display_plants_need_somethings()
+        self.display_plants_need_somethings(change='inside')
 
-    def display_plants_need_somethings(self):
+    def display_plants_need_somethings(self, change = ''):
         self.get_current_plants()
-        self.listNeedWater.clear()
-        self.listNeedLight.clear()
-        self.listNeedInside.clear()
-        for plant in self.df_plants.iterrows():
-            item = str(plant[1][1])
-            for id_w in self.id_needwater:
-                if id_w == plant[1][0]:
-                    self.listNeedWater.addItem(item)
-            for id_l in self.id_needlight:
-                if id_l == plant[1][0]:
-                    self.listNeedLight.addItem(item)
-            for id_is in self.id_needtobeinside:
-                if id_is == plant[1][0]:
-                    self.listNeedInside.addItem(item)
-        print('in display:')
-        print(self.id_needwater)
-        print(self.id_needlight)
-        print(self.id_needtobeinside)
+        if change == '':
+            self.listNeedWater.clear()
+            self.listNeedLight.clear()
+            self.listNeedInside.clear()
+            for plant in self.df_plants.iterrows():
+                item = str(plant[1][1])
+                for id_w in self.id_needwater:
+                    if id_w == plant[1][0]:
+                        self.listNeedWater.addItem(item)
+                for id_l in self.id_needlight:
+                    if id_l == plant[1][0]:
+                        self.listNeedLight.addItem(item)
+                for id_is in self.id_needtobeinside:
+                    if id_is == plant[1][0]:
+                        self.listNeedInside.addItem(item)
+        elif change == 'water':
+            self.listNeedWater.clear()
+            for plant in self.df_plants.iterrows():
+                item = str(plant[1][1])
+                for id_w in self.id_needwater:
+                    if id_w == plant[1][0]:
+                        self.listNeedWater.addItem(item)
+            
+        elif change == 'light':
+            self.listNeedLight.clear()
+            for plant in self.df_plants.iterrows():
+                item = str(plant[1][1])
+                for id_l in self.id_needlight:
+                    if id_l == plant[1][0]:
+                        self.listNeedLight.addItem(item)
+            
+        elif change == 'inside':
+            self.listNeedInside.clear()
+            for plant in self.df_plants.iterrows():
+                item = str(plant[1][1])
+                for id_is in self.id_needtobeinside:
+                    if id_is == plant[1][0]:
+                        self.listNeedInside.addItem(item)
+            
 
                 
 
@@ -785,16 +826,19 @@ class Ui_plantcare(object):
             self.id_needwater = []
             #recive list need action
             for res in self.prolog.query("needsWater(Id)"):
-                print("Needs Water",res['Id'])
+                #print("Needs Water",res['Id'])
                 self.id_needwater.append(res['Id'])
 
             for res in self.prolog.query("needsLight(Id)"):
-                print("Needs Light",res['Id'])
+                #print("Needs Light",res['Id'])
                 self.id_needlight.append(res['Id'])
 
             for res in self.prolog.query("needsToBeInside(Id)"):
-                print("Needs To Be Inside",res['Id'])
+                #print("Needs To Be Inside",res['Id'])
                 self.id_needtobeinside.append(res['Id'])
+            self.id_needlight.sort()
+            self.id_needtobeinside.sort()
+            self.id_needwater.sort()
             print(self.id_needwater)
             print(self.id_needlight)
             print(self.id_needtobeinside)
